@@ -1,1 +1,1 @@
-# diffcvx
+# Differentiable Convex Optimization for Decision-making
