@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 from numpy.lib.stride_tricks import sliding_window_view
 
 
-class CaisoDataset(Dataset):
+class ForecastDataset(Dataset):
     def __init__(
         self, data_dir: str, column: str, history_horizon: int, forecast_horizon: int
     ):
@@ -50,12 +50,12 @@ class CaisoDataset(Dataset):
 
 
 def get_caiso(start_date, end_date, save_dir):
-    """Generates hourly electrical load data from the California ISO network.
+    """Generates hourly electrical load data from the CAISO network.
 
     Args:
         start_date (pandas.Timestamp): start date of generated data.
         end_date (pandas.Timestamp): end date of generated data.
-        save_dir (str): directory to the folder where the generated csv will be saved.
+        save_dir (str): path to the directory where the generated csv will be saved.
 
     Returns:
         pandas.Dataframe: dataframe of hourly electrical load.
