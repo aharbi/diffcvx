@@ -1,0 +1,56 @@
+[
+    {
+        "name": "GEN1",
+        "max_power": 600.0,
+        "min_power": 150.0,
+        "ramp_rate": 125.0,
+        "alpha": 0.001562,
+        "beta": 7.92,
+        "gamma": 561.0
+    },
+    {
+        "name": "GEN2",
+        "max_power": 400.0,
+        "min_power": 100.0,
+        "ramp_rate": 75.0,
+        "alpha": 0.00194,
+        "beta": 7.85,
+        "gamma": 310.0
+    },
+    {
+        "name": "GEN3",
+        "max_power": 200.0,
+        "min_power": 50.0,
+        "ramp_rate": 100.0,
+        "alpha": 0.00482,
+        "beta": 7.978,
+        "gamma": 78.0
+    },
+    {
+        "name": "GEN4",
+        "max_power": 500.0,
+        "min_power": 100.0,
+        "ramp_rate": 100.0,
+        "alpha": 0.00269,
+        "beta": 5.27,
+        "gamma": 102.0
+    },
+    {
+        "name": "GEN5",
+        "max_power": 350.0,
+        "min_power": 40.0,
+        "ramp_rate": 75.0,
+        "alpha": 0.00172,
+        "beta": 9.9,
+        "gamma": 51.0
+    },
+    {
+        "name": "GEN6",
+        "max_power": 280.0,
+        "min_power": 100.0,
+        "ramp_rate": 75.0,
+        "alpha": 0.00963,
+        "beta": 8.26,
+        "gamma": 178.0
+    }
+]
