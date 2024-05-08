@@ -29,7 +29,9 @@ class ForecastDataset(Dataset):
 
         self.time_series = self.data[column].to_numpy()
 
-        self.time_series = (self.time_series - self.time_series.min()) / (self.time_series.max() - self.time_series.min())
+        self.time_series = (self.time_series - self.time_series.min()) / (
+            self.time_series.max() - self.time_series.min()
+        )
 
         self.time_series_shifted = self.time_series[history_horizon:]
 
