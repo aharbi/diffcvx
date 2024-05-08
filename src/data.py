@@ -28,7 +28,13 @@ class ForecastDataset(Dataset):
         self.data = pd.read_csv(data_dir)
 
         self.time_series = self.data[column].to_numpy()
+
+        self.time_series = (self.time_series - self.time_series.min()) / (self.time_series.max() - self.time_series.min())
+
         self.time_series_shifted = self.time_series[history_horizon:]
+
+        self.time_series = self.time_series.astype(np.float32)
+        self.time_series_shifted = self.time_series_shifted.astype(np.float32)
 
         # X, and Y have shape (number of examples, length of horizon window)
         self.X = sliding_window_view(self.time_series, history_horizon)
@@ -66,6 +72,7 @@ def get_caiso(start_date, end_date, save_dir):
 
     load = data.set_index("Time").resample("h").mean()
     load.drop([load.columns[0], load.columns[1]], axis=1, inplace=True)
+    load.dropna(inplace=True)
 
     load.to_csv(save_dir)
 
@@ -75,7 +82,7 @@ def get_caiso(start_date, end_date, save_dir):
 if __name__ == "__main__":
 
     # Training data
-    train_start_date = pd.Timestamp("January 1, 2022").normalize()
+    train_start_date = pd.Timestamp("January 1, 2021").normalize()
     train_end_date = pd.Timestamp("June 30, 2023").normalize()
     train_save_dir = "data/caiso_train.csv"
 
