@@ -71,26 +71,3 @@ def visualize_ed_schedule(model: EconomicDispatchModel):
     plt.ylabel("Electricity Generation (MWh)")
     plt.legend(ncol=2)
     plt.savefig("figures/sample_ed_schedule.png")
-
-
-if __name__ == "__main__":
-
-    # Plot a sample of the CAISO data
-    train_dir = "data/caiso_train.csv"
-    test_dir = "data/caiso_test.csv"
-
-    visualize_caiso_sample(train_dir, test_dir)
-
-    # Plot a sample electricity generation schedule
-    power_system_specs = json.load(open("data/system.json"))
-    generators = [Generator(specification) for specification in power_system_specs]
-
-    model = EconomicDispatchModel(generators=generators, horizon=24)
-
-    i = 100
-    df = pd.read_csv("data/caiso_train.csv")
-    load = (df["Load"][i : (i + 24)] * 0.08).to_numpy()
-
-    model.solve_ed(demand=load)
-
-    visualize_ed_schedule(model)

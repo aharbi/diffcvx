@@ -92,20 +92,3 @@ def get_caiso(start_date, end_date, save_dir):
     load.to_csv(save_dir)
 
     return load
-
-
-if __name__ == "__main__":
-
-    # Training data
-    train_start_date = pd.Timestamp("January 1, 2021").normalize()
-    train_end_date = pd.Timestamp("June 30, 2023").normalize()
-    train_save_dir = "data/caiso_train.csv"
-
-    _ = get_caiso(train_start_date, train_end_date, train_save_dir)
-
-    # Testing data
-    test_start_date = pd.Timestamp("July 1, 2023").normalize()
-    test_end_date = pd.Timestamp("December 31, 2023").normalize()
-    test_save_dir = "data/caiso_test.csv"
-
-    _ = get_caiso(test_start_date, test_end_date, test_save_dir)

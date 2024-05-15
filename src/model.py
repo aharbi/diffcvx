@@ -88,10 +88,3 @@ class EconomicDispatchModel:
         self.d.value = demand
 
         return self.model.solve()
-
-
-if __name__ == "__main__":
-
-    power_system_specs = json.load(open("data/system.json"))
-
-    generators = [Generator(specification) for specification in power_system_specs]
