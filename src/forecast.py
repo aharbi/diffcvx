@@ -11,6 +11,7 @@ class Forecaster(nn.Module):
         output_dim: int,
         num_layers: int,
         num_hidden: int,
+        load_dir: str = None,
     ):
         """Creates a feed forward multilayer perceptron (MLP) for use in forecasting algorithms.
 
@@ -19,6 +20,7 @@ class Forecaster(nn.Module):
             output_dim (int): output dimension (i.e., forecast_horizon).
             num_layers (int): number of layers in the MLP.
             num_hidden (int): number of hidden units per layer.
+            load_dir (str): directory to pretrained model weights.
         """
         super(Forecaster, self).__init__()
 
@@ -29,6 +31,9 @@ class Forecaster(nn.Module):
         self.num_hidden = num_hidden
 
         self.model = self.create_model()
+
+        if not (load_dir is None):
+            self.load_state_dict(torch.load(load_dir))
 
     def create_model(self):
 
@@ -52,20 +57,3 @@ class Forecaster(nn.Module):
 
     def forward(self, x):
         return self.model(x)
-
-
-if __name__ == "__main__":
-
-    history_horizon = 72
-    forecast_horizon = 24
-
-    num_layers = 4
-    num_hidden = 256
-
-    # Create a simple MLP forecasting model
-    forecaster = Forecaster(
-        input_dim=history_horizon,
-        output_dim=forecast_horizon,
-        num_layers=num_layers,
-        num_hidden=num_hidden,
-    )
