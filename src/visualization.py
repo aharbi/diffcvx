@@ -1,10 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import json
 
-from model import EconomicDispatchModel, Generator
-
+from model import EconomicDispatchModel
 
 plt.rcParams["text.usetex"] = True
 
