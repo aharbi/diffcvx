@@ -17,7 +17,8 @@ class Generator:
         self.max_power = specifications["max_power"]
         self.min_power = specifications["min_power"]
 
-        self.ramp_rate = specifications["ramp_rate"]
+        self.ramp_up_rate = specifications["ramp_up_rate"]
+        self.ramp_down_rate = specifications["ramp_down_rate"]
 
     def compute_cost(self, power: cp.Variable):
 
@@ -69,8 +70,13 @@ class EconomicDispatchModel:
         for index, generator in enumerate(self.generators):
             for t in range(1, self.horizon):
                 constraints.append(
-                    cp.abs(self.g[index, t] - self.g[index, t - 1])
-                    <= generator.ramp_rate
+                    cp.pos(self.g[index, t] - self.g[index, t - 1])
+                    <= generator.ramp_up_rate
+                )
+
+                constraints.append(
+                    cp.neg(self.g[index, t] - self.g[index, t - 1])
+                    <= generator.ramp_down_rate
                 )
 
         model = cp.Problem(cp.Minimize(objective), constraints)
