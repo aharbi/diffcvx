@@ -1,8 +1,5 @@
 import numpy as np
-import pandas as pd
 import cvxpy as cp
-import matplotlib.pyplot as plt
-import json
 
 
 class Generator:
@@ -28,11 +25,16 @@ class Generator:
 
 
 class EconomicDispatchModel:
-    def __init__(self, generators: list[Generator], horizon: int):
+    def __init__(
+        self, generators: list[Generator], horizon: int, lambdas: tuple[float, float]
+    ):
         self.generators = generators
         self.num_generators = len(generators)
 
         self.horizon = horizon
+
+        self.lambda_over = lambdas[0]
+        self.lambda_under = lambdas[1]
 
         self.model = self.create_ed()
 
@@ -42,6 +44,8 @@ class EconomicDispatchModel:
 
         # Variables
         self.g = cp.Variable((self.num_generators, self.horizon), nonneg=True)
+        self.d_over = cp.Variable(self.horizon, nonneg=True)
+        self.d_under = cp.Variable(self.horizon, nonneg=True)
 
         # Objetive function
         objective = 0
@@ -54,12 +58,17 @@ class EconomicDispatchModel:
                     + generator.gamma
                 )
 
+        objective += cp.sum(self.d_over) * self.lambda_over
+        objective += cp.sum(self.d_under) * self.lambda_under
+
         # Constraints
         constraints = []
 
         # Constraint 1 (Conservation of energy):
         for t in range(self.horizon):
-            constraints.append(self.g[:, t].sum() == self.d[t])
+            constraints.append(
+                self.g[:, t].sum() + self.d_over[t] - self.d_under[t] == self.d[t]
+            )
 
         # Constraint 2 (Maximum and minimum power constraints):
         for index, generator in enumerate(self.generators):
