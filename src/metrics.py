@@ -27,17 +27,7 @@ def compute_capex_metric(
 
     for i, (x, y) in enumerate(pbar):
 
-        x = (x - training_dataset.normalization_min) / (
-            training_dataset.normalization_max - training_dataset.normalization_min
-        )
-
         y_hat = forecaster(x)
-
-        y_hat = (
-            y_hat
-            * (training_dataset.normalization_max - training_dataset.normalization_min)
-            + training_dataset.normalization_min
-        )
 
         y = y.detach().cpu().numpy()
         y_hat = y_hat.detach().cpu().numpy()
@@ -49,7 +39,6 @@ def compute_capex_metric(
 
 def compute_prediction_metric(
     forecaster: Forecaster,
-    training_dataset: ForecastDataset,
     testing_dataset: ForecastDataset,
     metric: Callable,
 ):
@@ -61,14 +50,6 @@ def compute_prediction_metric(
     pbar = tqdm(dataloader)
 
     for i, (x, y) in enumerate(pbar):
-
-        x = (x - training_dataset.normalization_min) / (
-            training_dataset.normalization_max - training_dataset.normalization_min
-        )
-
-        y = (y - training_dataset.normalization_min) / (
-            training_dataset.normalization_max - training_dataset.normalization_min
-        )
 
         y_hat = forecaster(x)
 

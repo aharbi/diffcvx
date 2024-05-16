@@ -14,7 +14,6 @@ class ForecastDataset(Dataset):
         column: str,
         history_horizon: int,
         forecast_horizon: int,
-        normalize: bool,
     ):
         """Generates a PyTorch dataset for a forecasting problem.
 
@@ -23,7 +22,6 @@ class ForecastDataset(Dataset):
             column (str): dataframe column for the time series.
             history_horizon (int): length of the prediction history window.
             forecast_horizon (int): length of the prediction future window.
-            normalize (bool): whether to normalize the data to (0, 1) or not.
         """
         self.data_dir = data_dir
         self.history_horizon = history_horizon
@@ -32,14 +30,6 @@ class ForecastDataset(Dataset):
         self.data = pd.read_csv(data_dir)
 
         self.time_series = self.data[column].to_numpy()
-
-        self.normalization_min = self.time_series.min()
-        self.normalization_max = self.time_series.max()
-
-        if normalize:
-            self.time_series = (self.time_series - self.time_series.min()) / (
-                self.time_series.max() - self.time_series.min()
-            )
 
         self.time_series_shifted = self.time_series[history_horizon:]
 
@@ -54,9 +44,6 @@ class ForecastDataset(Dataset):
 
         # Match number of examples in X and Y.
         self.X = self.X[: self.n, :]
-
-    def get_normalization_constants(self):
-        return (self.normalization_min, self.normalization_max)
 
     def __len__(self):
         return self.n
@@ -85,6 +72,8 @@ def get_caiso(start_date, end_date, save_dir):
 
     load = data.set_index("Time").resample("h").mean()
     load.drop([load.columns[0], load.columns[1]], axis=1, inplace=True)
+    load["Load"] = load["Load"] / 50000
+
     load.dropna(inplace=True)
 
     load.to_csv(save_dir)

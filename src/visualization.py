@@ -40,7 +40,7 @@ def visualize_caiso_sample(train_dir: str, test_dir: str):
 
     plt.title("Hourly CAISO Network Load (January 2021 - December 2023)")
     plt.xlabel("Time Index")
-    plt.ylabel("Electrical Load (MWh)")
+    plt.ylabel("Normalized Electrical Load")
     plt.legend()
     plt.savefig("figures/sample_caiso_load.png")
 
@@ -66,6 +66,6 @@ def visualize_ed_schedule(model: EconomicDispatchModel):
 
     plt.title("Hourly Generator Schedule")
     plt.xlabel("Time (Hour)")
-    plt.ylabel("Electricity Generation (MWh)")
+    plt.ylabel("Normalized Electricity Generation")
     plt.legend(ncol=2)
     plt.savefig("figures/sample_ed_schedule.png")
