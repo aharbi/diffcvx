@@ -38,9 +38,9 @@ def visualize_data():
 
     model = EconomicDispatchModel(generators=generators, horizon=24)
 
-    i = 100
+    i = 1000
     df = pd.read_csv("data/caiso_train.csv")
-    load = (df["Load"][i : (i + 24)] * 0.08).to_numpy()
+    load = df["Load"][i : (i + 24)].to_numpy()
 
     model.solve_ed(demand=load)
 
@@ -55,12 +55,12 @@ def independent_model(train=False):
     num_layers = 4
     num_hidden = 256
 
-    num_epochs = 10
+    num_epochs = 50
     batch_size = 128
     lr = 1e-4
     device = "cpu"
 
-    lambdas = [0, 0]
+    lambdas = [100, 500]
 
     training_dir = "data/caiso_train.csv"
     testing_dir = "data/caiso_test.csv"
@@ -85,7 +85,6 @@ def independent_model(train=False):
         column=column,
         history_horizon=history_horizon,
         forecast_horizon=forecast_horizon,
-        normalize=True,
     )
 
     if train:
@@ -120,7 +119,109 @@ def independent_model(train=False):
         column=column,
         history_horizon=history_horizon,
         forecast_horizon=forecast_horizon,
-        normalize=False,
+    )
+
+
+    # Compute metrics
+    mse_mean, mse_std = compute_prediction_metric(
+        forecaster, training_dataset, testing_dataset, squared_error
+    )
+
+    mae_mean, mae_std = compute_prediction_metric(
+        forecaster, training_dataset, testing_dataset, absolute_error
+    )
+
+    capex_mean, capex_std = compute_capex_metric(
+        forecaster, ed_model, training_dataset, testing_dataset, capex, lambdas
+    )
+
+    print(f"MSE Mean: {mse_mean.item()} - STD: {mse_std.item()}")
+    print(f"MAE Mean: {mae_mean.item()} - STD: {mae_std.item()}")
+    print(f"CAPEX Mean: {capex_mean.item()} - STD: {capex_std.item()}")
+
+    # Visualize some predictions
+    for i in np.random.randint(0, len(testing_dataset), 15):
+        x, y = testing_dataset.__getitem__(i)
+
+        y_hat = forecaster(torch.from_numpy(x)).detach().numpy()
+
+        plt.plot(y_hat, label="Prediction")
+        plt.plot(y, label="Ground Truth")
+        plt.legend()
+        plt.show()
+
+def end_to_end_model(train=False):
+    # Parameters
+    history_horizon = 72
+    forecast_horizon = 24
+
+    num_layers = 4
+    num_hidden = 256
+
+    num_epochs = 50
+    batch_size = 128
+    lr = 1e-4
+    device = "cpu"
+
+    lambdas = [1000, 1000]
+
+    training_dir = "data/caiso_train.csv"
+    testing_dir = "data/caiso_test.csv"
+
+    system_dir = "data/system.json"
+
+    column = "Load"
+    save_dir = "models/"
+    load_dir = "models/mlp_49.pth"
+
+    # ED model
+    power_system_specs = json.load(open(system_dir))
+    generators = [Generator(specification) for specification in power_system_specs]
+
+    ed_model = EconomicDispatchModel(
+        generators=generators, horizon=forecast_horizon, lambdas=lambdas
+    )
+
+    # Training model
+    training_dataset = ForecastDataset(
+        data_dir=training_dir,
+        column=column,
+        history_horizon=history_horizon,
+        forecast_horizon=forecast_horizon,
+    )
+
+    if train:
+        forecaster = Forecaster(
+            input_dim=history_horizon,
+            output_dim=forecast_horizon,
+            num_layers=num_layers,
+            num_hidden=num_hidden,
+        )
+
+        trainer = EndToEndTrainer(forecaster, ed_model, training_dataset)
+
+        trainer.train(
+            num_epochs=num_epochs,
+            batch_size=batch_size,
+            lr=lr,
+            device=device,
+            save_dir=save_dir,
+        )
+    else:
+        forecaster = Forecaster(
+            input_dim=history_horizon,
+            output_dim=forecast_horizon,
+            num_layers=num_layers,
+            num_hidden=num_hidden,
+            load_dir=load_dir,
+        )
+
+    # Testing model
+    testing_dataset = ForecastDataset(
+        data_dir=testing_dir,
+        column=column,
+        history_horizon=history_horizon,
+        forecast_horizon=forecast_horizon,
     )
 
     # Compute metrics
@@ -144,17 +245,7 @@ def independent_model(train=False):
     for i in np.random.randint(0, len(testing_dataset), 15):
         x, y = testing_dataset.__getitem__(i)
 
-        x = (x - training_dataset.normalization_min) / (
-            training_dataset.normalization_max - training_dataset.normalization_min
-        )
-
         y_hat = forecaster(torch.from_numpy(x)).detach().numpy()
-
-        y_hat = (
-            y_hat
-            * (training_dataset.normalization_max - training_dataset.normalization_min)
-            + training_dataset.normalization_min
-        )
 
         plt.plot(y_hat, label="Prediction")
         plt.plot(y, label="Ground Truth")
@@ -163,4 +254,5 @@ def independent_model(train=False):
 
 
 if __name__ == "__main__":
-    independent_model()
+    end_to_end_model(train=True)
+    #independent_model(train=True)

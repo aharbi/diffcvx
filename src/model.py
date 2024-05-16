@@ -26,7 +26,7 @@ class Generator:
 
 class EconomicDispatchModel:
     def __init__(
-        self, generators: list[Generator], horizon: int, lambdas: tuple[float, float]
+        self, generators: list[Generator], horizon: int, lambdas: tuple[float, float] = (1000, 1000)
     ):
         self.generators = generators
         self.num_generators = len(generators)
@@ -96,4 +96,4 @@ class EconomicDispatchModel:
 
         self.d.value = demand
 
-        return self.model.solve()
+        return self.model.solve(solver="ECOS")
