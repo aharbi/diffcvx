@@ -40,16 +40,16 @@ class Forecaster(nn.Module):
         layers = OrderedDict()
 
         layers["input"] = nn.Linear(self.input_dim, self.num_hidden)
-        layers["input_activation"] = nn.GELU()
+        layers["input_activation"] = nn.LeakyReLU()
 
         for hidden_layer_index in range(self.num_layers):
             layers[f"hidden_{hidden_layer_index}"] = nn.Linear(
                 self.num_hidden, self.num_hidden
             )
-            layers[f"activation_{hidden_layer_index}"] = nn.GELU()
+            layers[f"activation_{hidden_layer_index}"] = nn.LeakyReLU()
 
         layers["output"] = nn.Linear(self.num_hidden, self.output_dim)
-        layers["output_activation"] = nn.GELU()
+        #layers["output_activation"] = nn.LeakyReLU()
 
         model = nn.Sequential(layers)
 

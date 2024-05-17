@@ -85,11 +85,7 @@ class EndToEndTrainer:
         self.ed_layer = CvxpyLayer(
             self.ed_model.model,
             parameters=[self.ed_model.d],
-            variables=[
-                self.ed_model.g,
-                self.ed_model.d_over,
-                self.ed_model.d_under,
-            ],
+            variables=[self.ed_model.g],
         )
 
     def train(
@@ -111,6 +107,8 @@ class EndToEndTrainer:
 
         for epoch in range(num_epochs):
 
+            optim.param_groups[0]["lr"] = lr * (1 - epoch / num_epochs)
+
             pbar = tqdm(dataloader)
 
             loss_ema = None
@@ -122,12 +120,12 @@ class EndToEndTrainer:
 
                 y_hat = self.forecaster(x)
 
-                x = self.ed_layer(y_hat, solver_args={"eps": 1e-3, "max_iters": 1000, "acceleration_lookback": 0})
+                g = self.ed_layer(y_hat, solver_args={"eps": 1e-1, "max_iters": 100})
 
                 # NOTE: Temporary loss, to be changed.
-                d_hat = x[0].sum(axis=-2)
+                d = g[0].sum(axis=-2)
 
-                output = loss(d_hat, y)
+                output = loss(d, y)
 
                 output.backward()
 
