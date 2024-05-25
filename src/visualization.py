@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from model import EconomicDispatchModel
 
-plt.rcParams["text.usetex"] = True
+plt.style.use("figures/config.mplstyle")
 
 
 def visualize_caiso_sample(train_dir: str, test_dir: str):
@@ -21,7 +21,7 @@ def visualize_caiso_sample(train_dir: str, test_dir: str):
     train_time_series = train_df["Load"]
     test_time_series = test_df["Load"]
 
-    plt.figure(figsize=(7, 3), dpi=200, layout="constrained")
+    plt.figure()
 
     plt.plot(
         range(len(train_time_series)),
@@ -38,11 +38,11 @@ def visualize_caiso_sample(train_dir: str, test_dir: str):
         label="Testing",
     )
 
-    plt.title("Hourly CAISO Network Load (January 2021 - December 2023)")
     plt.xlabel("Time Index")
     plt.ylabel("Normalized Electrical Load")
     plt.legend()
-    plt.savefig("figures/sample_caiso_load.png")
+    plt.xticks([1000, 3000, 6000, 8000, 10000])
+    plt.savefig("figures/sample_caiso_load.pdf")
 
 
 def visualize_ed_schedule(model: EconomicDispatchModel):
@@ -57,15 +57,12 @@ def visualize_ed_schedule(model: EconomicDispatchModel):
 
     m, n = generation.shape
 
-    labels = [f"Generator {index + 1}" for index in range(n)]
+    plt.figure()
 
-    plt.figure(figsize=(7, 3), dpi=200, layout="constrained")
-
-    plt.stackplot(range(n), generation, labels=labels)
+    plt.stackplot(range(n), generation)
     plt.plot(range(n), demand, linestyle="--", c="k", label="Demand")
 
-    plt.title("Hourly Generator Schedule")
     plt.xlabel("Time (Hour)")
-    plt.ylabel("Normalized Electricity Generation")
-    plt.legend(ncol=2)
-    plt.savefig("figures/sample_ed_schedule.png")
+    plt.ylabel("Normalized Generation")
+    plt.legend()
+    plt.savefig("figures/sample_ed_schedule.pdf")
