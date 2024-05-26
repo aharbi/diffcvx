@@ -14,8 +14,7 @@ class Generator:
         self.max_power = specifications["max_power"]
         self.min_power = specifications["min_power"]
 
-        self.ramp_up_rate = specifications["ramp_up_rate"]
-        self.ramp_down_rate = specifications["ramp_down_rate"]
+        self.ramp_rate = specifications["ramp_rate"]
 
     def compute_cost(self, power: cp.Variable):
 
@@ -26,15 +25,18 @@ class Generator:
 
 class EconomicDispatchModel:
     def __init__(
-        self, generators: list[Generator], horizon: int, lambdas: tuple[float, float] = (1000, 1000)
+        self,
+        generators: list[Generator],
+        horizon: int,
+        lambdas: tuple[float, float] = (1000, 1000),
     ):
         self.generators = generators
         self.num_generators = len(generators)
 
         self.horizon = horizon
 
-        self.lambda_over = lambdas[0]
-        self.lambda_under = lambdas[1]
+        self.lambda_plus = lambdas[0]
+        self.lambda_minus = lambdas[1]
 
         self.model = self.create_ed()
 
@@ -44,8 +46,8 @@ class EconomicDispatchModel:
 
         # Variables
         self.g = cp.Variable((self.num_generators, self.horizon), nonneg=True)
-        self.d_over = cp.Variable(self.horizon, nonneg=True)
-        self.d_under = cp.Variable(self.horizon, nonneg=True)
+        self.s_plus = cp.Variable(self.horizon, nonneg=True)
+        self.s_minus = cp.Variable(self.horizon, nonneg=True)
 
         # Objetive function
         objective = 0
@@ -58,8 +60,8 @@ class EconomicDispatchModel:
                     + generator.gamma
                 )
 
-        objective += cp.sum(self.d_over) * self.lambda_over
-        objective += cp.sum(self.d_under) * self.lambda_under
+        objective += cp.sum(self.s_plus) * self.lambda_plus
+        objective += cp.sum(self.s_minus) * self.lambda_minus
 
         # Constraints
         constraints = []
@@ -67,7 +69,7 @@ class EconomicDispatchModel:
         # Constraint 1 (Conservation of energy):
         for t in range(self.horizon):
             constraints.append(
-                self.g[:, t].sum() + self.d_over[t] - self.d_under[t] == self.d[t]
+                self.g[:, t].sum() + self.s_plus[t] - self.s_minus[t] >= self.d[t]
             )
 
         # Constraint 2 (Maximum and minimum power constraints):
@@ -79,13 +81,8 @@ class EconomicDispatchModel:
         for index, generator in enumerate(self.generators):
             for t in range(1, self.horizon):
                 constraints.append(
-                    cp.pos(self.g[index, t] - self.g[index, t - 1])
-                    <= generator.ramp_up_rate
-                )
-
-                constraints.append(
-                    cp.neg(self.g[index, t] - self.g[index, t - 1])
-                    <= generator.ramp_down_rate
+                    cp.abs(self.g[index, t] - self.g[index, t - 1])
+                    <= generator.ramp_rate
                 )
 
         model = cp.Problem(cp.Minimize(objective), constraints)
@@ -96,4 +93,9 @@ class EconomicDispatchModel:
 
         self.d.value = demand
 
-        return self.model.solve(solver="ECOS")
+        return self.model.solve()
+
+
+class PredictionErrorReward:
+    def __init__(self):
+        pass
