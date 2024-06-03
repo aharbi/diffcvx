@@ -1,3 +1,5 @@
 # Differentiable Convex Optimization for Decision-making
 
-![title](figures/model.svg)
+<p align="center">
+  <img src="figures/model.png" />
+</p>
