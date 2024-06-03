@@ -42,7 +42,7 @@ class Forecaster(nn.Module):
         layers["input"] = nn.Linear(self.input_dim, self.num_hidden)
         layers["input_activation"] = nn.LeakyReLU()
 
-        for hidden_layer_index in range(self.num_layers):
+        for hidden_layer_index in range(self.num_layers - 1):
             layers[f"hidden_{hidden_layer_index}"] = nn.Linear(
                 self.num_hidden, self.num_hidden
             )
