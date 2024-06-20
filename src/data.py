@@ -106,7 +106,7 @@ def get_data(args):
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description="download CAISO data")
+    parser = argparse.ArgumentParser(description="Downloads CAISO data")
 
     parser.add_argument(
         "--train_start_date",
