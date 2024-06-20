@@ -11,15 +11,15 @@ from forecast import Forecaster
 from data import ForecastDataset
 
 
-def compute_average_prediction(forecaster, dataset):
-    """_summary_
+def compute_average_prediction(forecaster: Forecaster, dataset: ForecastDataset):
+    """Computes the average prediction of energy demand over a period using a Forecaster on a given dataset.
 
     Args:
-        forecaster (_type_): _description_
-        dataset (_type_): _description_
+        forecaster (Forecaster): The forecasting model used to predict energy demand.
+        dataset (ForecastDataset): The dataset containing energy demand data.
 
     Returns:
-        _type_: _description_
+        tuple: A tuple containing mean predictions, standard deviation of predictions, and mean true values.
     """
     y_pred = []
     y_true = []
@@ -49,17 +49,17 @@ def compute_capex(
     lambda_plus: float,
     lambda_minus: float,
 ):
-    """_summary_
+    """Calculates the expected capital expenditure (CAPEX) over a dataset, taking into account overestimation and underestimation costs.
 
     Args:
-        forecaster (Forecaster): _description_
-        model (EconomicDispatchModel): _description_
-        dataset (ForecastDataset): _description_
-        lambda_plus (float): _description_
-        lambda_minus (float): _description_
+        forecaster (Forecaster): The forecasting model used to predict energy demand.
+        model (EconomicDispatchModel): The economic dispatch model used for cost calculations.
+        dataset (ForecastDataset): The dataset containing energy demand data.
+        lambda_plus (float): The penalty cost per unit of energy for overestimation.
+        lambda_minus (float): The penalty cost per unit of energy for underestimation.
 
     Returns:
-        _type_: _description_
+        tuple: A tuple containing the mean and standard deviation of the CAPEX scores.
     """
     score = np.zeros(len(dataset))
 
@@ -84,15 +84,15 @@ def compute_ramping_reserve(
     model: EconomicDispatchModel,
     dataset: ForecastDataset,
 ):
-    """_summary_
+    """Computes the ramping reserve score, measuring the ability of a power system to handle ramping based on predicted demand.
 
     Args:
-        forecaster (Forecaster): _description_
-        model (EconomicDispatchModel): _description_
-        dataset (ForecastDataset): _description_
+        forecaster (Forecaster): The forecasting model used to predict energy demand.
+        model (EconomicDispatchModel): The economic dispatch model used for ramping calculations.
+        dataset (ForecastDataset): The dataset containing energy demand data.
 
     Returns:
-        _type_: _description_
+        tuple: A tuple containing the mean and standard deviation of the ramping reserve scores.
     """
     score = np.zeros(len(dataset))
 
@@ -116,15 +116,15 @@ def compute_prediction_metric(
     testing_dataset: ForecastDataset,
     metric: Callable,
 ):
-    """_summary_
+    """Computes a specified prediction metric over a testing dataset using the given forecaster.
 
     Args:
-        forecaster (Forecaster): _description_
-        testing_dataset (ForecastDataset): _description_
-        metric (Callable): _description_
+        forecaster (Forecaster): The forecasting model used for predictions.
+        testing_dataset (ForecastDataset): The dataset containing testing data.
+        metric (Callable): The metric function used to evaluate prediction accuracy.
 
     Returns:
-        _type_: _description_
+        tuple: A tuple containing the mean and standard deviation of the computed scores.
     """
     score = torch.zeros(len(testing_dataset))
 
@@ -150,17 +150,17 @@ def capex(
     lambda_plus: float,
     lambda_minus: float,
 ):
-    """_summary_
+    """Calculates the capital expenditure based on the difference between predicted and true energy demand, considering over and under generation costs.
 
     Args:
-        model (EconomicDispatchModel): _description_
-        predicted_demand (np.ndarray): _description_
-        true_demand (np.ndarray): _description_
-        lambda_plus (float): _description_
-        lambda_minus (float): _description_
+        model (EconomicDispatchModel): The economic dispatch model to calculate system costs.
+        predicted_demand (np.ndarray): Array of predicted energy demands.
+        true_demand (np.ndarray): Array of actual energy demands.
+        lambda_plus (float): The penalty cost per unit of energy for overestimation.
+        lambda_minus (float): The penalty cost per unit of energy for underestimation.
 
     Returns:
-        _type_: _description_
+        float: The total capital expenditure calculated.
     """
     system_cost = model.solve_ed(predicted_demand)
 
@@ -175,14 +175,14 @@ def capex(
 
 
 def ramping_reserve(model: EconomicDispatchModel, predicted_demand: np.ndarray):
-    """_summary_
+    """Computes the ramping reserve of a system based on predicted energy demand.
 
     Args:
-        model (EconomicDispatchModel): _description_
-        predicted_demand (np.ndarray): _description_
+        model (EconomicDispatchModel): The economic dispatch model used for ramping calculations.
+        predicted_demand (np.ndarray): The predicted energy demand.
 
     Returns:
-        _type_: _description_
+        float: The calculated average ramping reserve.
     """
     model.solve_ed(predicted_demand)
 
@@ -203,26 +203,26 @@ def ramping_reserve(model: EconomicDispatchModel, predicted_demand: np.ndarray):
 
 
 def squared_error(y_hat, y):
-    """_summary_
+    """Computes the squared error between predicted and actual values.
 
     Args:
-        y_hat (_type_): _description_
-        y (_type_): _description_
+        y_hat (torch.Tensor): Predicted values.
+        y (torch.Tensor): Actual values.
 
     Returns:
-        _type_: _description_
+        torch.Tensor: The squared error.
     """
     return torch.norm(y_hat - y, p=2)
 
 
 def absolute_error(y_hat, y):
-    """_summary_
+    """Computes the absolute error between predicted and actual values.
 
     Args:
-        y_hat (_type_): _description_
-        y (_type_): _description_
+        y_hat (torch.Tensor): Predicted values.
+        y (torch.Tensor): Actual values.
 
     Returns:
-        _type_: _description_
+        torch.Tensor: The absolute error.
     """
     return torch.norm(y_hat - y, p=1)

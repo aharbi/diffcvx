@@ -15,11 +15,12 @@ from model import EconomicDispatchModel
 
 class IndependentTrainer:
     def __init__(self, forecaster: Forecaster, dataset: ForecastDataset):
-        """_summary_
+        """Trainer object for training standard prediction models without
+        differentiable convex optimization layers.
 
         Args:
-            forecaster (Forecaster): _description_
-            dataset (ForecastDataset): _description_
+            forecaster (Forecaster): Forecasting model object.
+            dataset (ForecastDataset): Forecasting dataset.
         """
 
         self.forecaster = forecaster
@@ -34,15 +35,15 @@ class IndependentTrainer:
         save_dir: str,
         name: str,
     ):
-        """_summary_
+        """Trains the forecasting model using mean squared error loss.
 
         Args:
-            num_epochs (int): _description_
-            batch_size (int): _description_
-            lr (float): _description_
-            device (str): _description_
-            save_dir (str): _description_
-            name (str): _description_
+            num_epochs (int): Number of epochs to train.
+            batch_size (int): Batch size for data loader.
+            lr (float): Initial learning rate.
+            device (str): Device ('cpu' or 'cuda') on which to train.
+            save_dir (str): Directory path to save the trained model and loss log.
+            name (str): Name to save the model under.
         """
 
         dataloader = DataLoader(self.dataset, batch_size=batch_size, shuffle=True)
@@ -102,12 +103,12 @@ class EndToEndTrainer:
         ed_model: EconomicDispatchModel,
         dataset: ForecastDataset,
     ):
-        """_summary_
+        """Trainer object for training end-to-end prediction models with differentiable convex optimization layers.
 
         Args:
-            forecaster (Forecaster): _description_
-            ed_model (EconomicDispatchModel): _description_
-            dataset (ForecastDataset): _description_
+            forecaster (Forecaster): Forecasting model object.
+            ed_model (EconomicDispatchModel): Economic dispatch model for optimization.
+            dataset (ForecastDataset): Dataset containing energy demand data.
         """
 
         self.forecaster = forecaster
@@ -130,16 +131,16 @@ class EndToEndTrainer:
         save_dir: str,
         name: str,
     ):
-        """_summary_
+        """Trains the model end-to-end based on a given loss function.
 
         Args:
-            loss (str): _description_
-            num_epochs (int): _description_
-            batch_size (int): _description_
-            lr (float): _description_
-            device (str): _description_
-            save_dir (str): _description_
-            name (str): _description_
+            loss (str): Type of loss to compute ('prediction_error', 'capex', 'ramping_reserve').
+            num_epochs (int): Number of epochs to train.
+            batch_size (int): Batch size for data loader.
+            lr (float): Initial learning rate.
+            device (str): Device ('cpu' or 'cuda') on which to train.
+            save_dir (str): Directory path to save the trained model and loss log.
+            name (str): Name to save the model under.
         """
 
         dataloader = DataLoader(self.dataset, batch_size=batch_size, shuffle=True)
@@ -212,14 +213,14 @@ class EndToEndTrainer:
 
 
 def prediction_error_loss(g: torch.Tensor, y: torch.Tensor):
-    """_summary_
+    """Computes the prediction error loss as the mean squared error between the sum of generator outputs and true demands.
 
     Args:
-        g (torch.Tensor): _description_
-        y (torch.Tensor): _description_
+        g (torch.Tensor): Generation from each generator.
+        y (torch.Tensor): True demand values.
 
     Returns:
-        _type_: _description_
+        torch.Tensor: The computed mean squared error loss.
     """
 
     d = g.sum(axis=-2)
@@ -230,15 +231,15 @@ def prediction_error_loss(g: torch.Tensor, y: torch.Tensor):
 
 
 def capex_loss(g: torch.Tensor, y: torch.Tensor, ed_model: EconomicDispatchModel):
-    """_summary_
+    """Computes the capital expenditure loss including generation costs and penalties for under/over generation.
 
     Args:
-        g (torch.Tensor): _description_
-        y (torch.Tensor): _description_
-        ed_model (EconomicDispatchModel): _description_
+        g (torch.Tensor): Generation from each generator.
+        y (torch.Tensor): True demand values.
+        ed_model (EconomicDispatchModel): Economic dispatch model to calculate generation costs.
 
     Returns:
-        _type_: _description_
+        torch.Tensor: The computed capital expenditure loss.
     """
 
     d = g.sum(axis=-2)
@@ -267,14 +268,14 @@ def capex_loss(g: torch.Tensor, y: torch.Tensor, ed_model: EconomicDispatchModel
 
 
 def ramping_reserve_loss(g: torch.Tensor, ed_model: EconomicDispatchModel):
-    """_summary_
+    """Calculates the ramping reserve loss, emphasizing the ability to ramp up or down to meet demand changes.
 
     Args:
-        g (torch.Tensor): _description_
-        ed_model (EconomicDispatchModel): _description_
+        g (torch.Tensor): Generation from each generator.
+        ed_model (EconomicDispatchModel): Economic dispatch model.
 
     Returns:
-        _type_: _description_
+        torch.Tensor: The ramping reserve loss value.
     """
 
     num_generators = len(ed_model.generators)

@@ -122,10 +122,10 @@ def visualize_predictions():
     )
 
     model_names = [
-        "Baseline",
-        "End-to-End",
+        "Baseline (Predictiton Error)",
+        "End-to-End (Predictiton Error)",
         "End-to-End (CapEx)",
-        "End-to-End (Reliability)",
+        "End-to-End (Ramping Reserve)",
     ]
     model_dirs = [
         "models/mlp_baseline_14.pth",
@@ -164,7 +164,7 @@ def visualize_predictions():
             )
 
             ax[i, j].set_xticks(range(0, 24, 2))
-            ax[i, j].legend()
+            ax[i, j].legend(loc="upper left")
 
             counter += 1
 
