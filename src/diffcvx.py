@@ -101,14 +101,14 @@ def run_model(args, baseline=False):
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description="download CAISO data")
+    parser = argparse.ArgumentParser(description="Trains a prediction model for the economic dispatch problem using differentiable convex optimization layers.")
 
     parser.add_argument(
         "--history_horizon",
         metavar="history_horizon",
         type=int,
         default=24,
-        help="",
+        help="Number of historical hours used as input features to the forecasting model."
     )
 
     parser.add_argument(
@@ -116,7 +116,7 @@ def get_args():
         metavar="forecast_horizon",
         type=int,
         default=24,
-        help="",
+        help="Number of future hours to forecast."
     )
 
     parser.add_argument(
@@ -124,7 +124,7 @@ def get_args():
         metavar="loss",
         type=str,
         default="capex",
-        help="",
+        help="Loss function to use during training; options include 'capex', 'prediction_error', 'ramping_reserve'."
     )
 
     parser.add_argument(
@@ -132,7 +132,7 @@ def get_args():
         metavar="num_layers",
         type=int,
         default=1,
-        help="",
+        help="Number of layers in the neural network model."
     )
 
     parser.add_argument(
@@ -140,7 +140,7 @@ def get_args():
         metavar="train",
         type=bool,
         default=True,
-        help="",
+        help="Flag indicating whether to train the model or not; set to False for inference only."
     )
 
     parser.add_argument(
@@ -148,7 +148,7 @@ def get_args():
         metavar="num_hidden",
         type=int,
         default=32,
-        help="",
+        help="Number of neurons in each hidden layer of the network."
     )
 
     parser.add_argument(
@@ -156,7 +156,7 @@ def get_args():
         metavar="num_epochs",
         type=int,
         default=15,
-        help="",
+        help="Number of training epochs."
     )
 
     parser.add_argument(
@@ -164,7 +164,7 @@ def get_args():
         metavar="batch_size",
         type=int,
         default=8,
-        help="",
+        help="Batch size for training."
     )
 
     parser.add_argument(
@@ -172,7 +172,7 @@ def get_args():
         metavar="lr",
         type=float,
         default=1e-2,
-        help="",
+        help="Initial learning rate for training."
     )
 
     parser.add_argument(
@@ -180,7 +180,7 @@ def get_args():
         metavar="device",
         type=str,
         default="cpu",
-        help="",
+        help="Device to use ('cpu' or 'cuda')."
     )
 
     parser.add_argument(
@@ -188,7 +188,7 @@ def get_args():
         metavar="lambda_plus",
         type=float,
         default=1000,
-        help="",
+        help="Penalty cost per unit of energy for overestimation."
     )
 
     parser.add_argument(
@@ -196,7 +196,7 @@ def get_args():
         metavar="lambda_minus",
         type=float,
         default=5000,
-        help="",
+        help="Penalty cost per unit of energy for underestimation."
     )
 
     parser.add_argument(
@@ -204,7 +204,7 @@ def get_args():
         metavar="training_dir",
         type=str,
         default="data/caiso_train.csv",
-        help="",
+        help="Path to the training data file."
     )
 
     parser.add_argument(
@@ -212,7 +212,7 @@ def get_args():
         metavar="testing_dir",
         type=str,
         default="data/caiso_test.csv",
-        help="",
+        help="Path to the testing data file."
     )
 
     parser.add_argument(
@@ -220,15 +220,7 @@ def get_args():
         metavar="system_dir",
         type=str,
         default="data/system.json",
-        help="",
-    )
-
-    parser.add_argument(
-        "--system_dir",
-        metavar="system_dir",
-        type=str,
-        default="data/system.json",
-        help="",
+        help="Path to the system configuration file in JSON format."
     )
 
     parser.add_argument(
@@ -236,7 +228,7 @@ def get_args():
         metavar="save_dir",
         type=str,
         default="models/",
-        help="",
+        help="Directory to save trained models and logs."
     )
 
     parser.add_argument(
@@ -244,7 +236,7 @@ def get_args():
         metavar="name",
         type=str,
         default="model",
-        help="",
+        help="Name under which the model and associated files are saved."
     )
 
     parser.add_argument(
@@ -252,7 +244,7 @@ def get_args():
         metavar="load_dir",
         type=str,
         default="models/mlp_baseline_14.pth",
-        help="",
+        help="Path from which to load a pre-trained model for further training or inference."
     )
 
     args = parser.parse_args()
